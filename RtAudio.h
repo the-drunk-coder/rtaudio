@@ -368,10 +368,12 @@ class RtAudio
     unsigned int numberOfBuffers;  /*!< Number of stream buffers. */
     std::string streamName;        /*!< A stream name (currently used only in Jack). */
     int priority;                  /*!< Scheduling priority of callback thread (only used with flag RTAUDIO_SCHEDULE_REALTIME). */
-
+    bool autoConnectInput;
+    bool autoConnectOutput;
+    
     // Default constructor.
     StreamOptions()
-    : flags(0), numberOfBuffers(0), priority(0) {}
+    : flags(0), numberOfBuffers(0), priority(0), autoConnectInput(true), autoConnectOutput(true) {}
   };
 
   //! A static function to determine the current RtAudio version.
@@ -754,7 +756,9 @@ protected:
     CallbackInfo callbackInfo;
     ConvertInfo convertInfo[2];
     double streamTime;         // Number of elapsed seconds since the stream started.
-
+    bool autoConnectInput; // Flag whether to connect input automatically, i.e. when using jack.
+    bool autoConnectOutput; // Flag whether to connect input automatically, i.e. when using jack.
+    
 #if defined(HAVE_GETTIMEOFDAY)
     struct timeval lastTickTimestamp;
 #endif

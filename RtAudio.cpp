@@ -2249,7 +2249,9 @@ bool RtApiJack :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
 
   stream_.nDeviceChannels[mode] = channels;
   stream_.nUserChannels[mode] = channels;
-
+  stream_.autoConnectInput = options->autoConnectInput;
+  stream_.autoConnectOutput = options->autoConnectOutput;
+  
   // Set flags for buffer conversion.
   stream_.doConvertBuffer[mode] = false;
   if ( stream_.userFormat != stream_.deviceFormat[mode] )
@@ -2443,7 +2445,7 @@ void RtApiJack :: startStream( void )
   const char **ports;
 
   // Get the list of available ports.
-  if ( stream_.mode == OUTPUT || stream_.mode == DUPLEX ) {
+  if ( (stream_.mode == OUTPUT || stream_.mode == DUPLEX) && stream_.autoConnectOutput ) {
     result = 1;
     ports = jack_get_ports( handle->client, handle->deviceName[0].c_str(), NULL, JackPortIsInput);
     if ( ports == NULL) {
@@ -2454,6 +2456,7 @@ void RtApiJack :: startStream( void )
     // Now make the port connections.  Since RtAudio wasn't designed to
     // allow the user to select particular channels of a device, we'll
     // just open the first "nChannels" ports with offset.
+    
     for ( unsigned int i=0; i<stream_.nUserChannels[0]; i++ ) {
       result = 1;
       if ( ports[ stream_.channelOffset[0] + i ] )
@@ -2464,10 +2467,10 @@ void RtApiJack :: startStream( void )
         goto unlock;
       }
     }
-    free(ports);
+    free(ports);  
   }
 
-  if ( stream_.mode == INPUT || stream_.mode == DUPLEX ) {
+  if ((stream_.mode == INPUT || stream_.mode == DUPLEX) && stream_.autoConnectInput) {
     result = 1;
     ports = jack_get_ports( handle->client, handle->deviceName[1].c_str(), NULL, JackPortIsOutput );
     if ( ports == NULL) {
