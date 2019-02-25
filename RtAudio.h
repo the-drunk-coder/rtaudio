@@ -135,6 +135,11 @@ static const RtAudioFormat RTAUDIO_FLOAT64 = 0x20; // Normalized between plus/mi
 
     If the RTAUDIO_JACK_DONT_CONNECT flag is set, RtAudio will not attempt
     to automatically connect the ports of the client to the audio device.
+
+    If the RTAUDIO_CORE_TRY_SWITCH_SAMPLERATE flag is set, RtAudio will attempt
+    to automatically set the global sample rate for the audio device. This
+    might fail if another application locked the sample rate to a specific
+    value.
 */
 typedef unsigned int RtAudioStreamFlags;
 static const RtAudioStreamFlags RTAUDIO_NONINTERLEAVED = 0x1;    // Use non-interleaved buffers (default = interleaved).
