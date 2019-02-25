@@ -143,6 +143,7 @@ static const RtAudioStreamFlags RTAUDIO_HOG_DEVICE = 0x4;        // Attempt grab
 static const RtAudioStreamFlags RTAUDIO_SCHEDULE_REALTIME = 0x8; // Try to select realtime scheduling for callback thread.
 static const RtAudioStreamFlags RTAUDIO_ALSA_USE_DEFAULT = 0x10; // Use the "default" PCM device (ALSA only).
 static const RtAudioStreamFlags RTAUDIO_JACK_DONT_CONNECT = 0x20; // Do not automatically connect ports (JACK only).
+static const RtAudioStreamFlags RTAUDIO_CORE_TRY_SWITCH_SAMPLERATE = 0x40; // Try to change to desired samplerate (CORE AUDIO only)
 
 /*! \typedef typedef unsigned long RtAudioStreamStatus;
     \brief RtAudio stream status (over- or underflow) flags.
