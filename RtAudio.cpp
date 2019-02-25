@@ -874,6 +874,16 @@ RtAudio::DeviceInfo RtApiCore :: getDeviceInfo( unsigned int device )
     return info;
   }
 
+  // Probe the currently configured sample rate ...
+  Float64 nominalRate;
+  dataSize = sizeof( Float64 );
+  property.mSelector = kAudioDevicePropertyNominalSampleRate;
+  result = AudioObjectGetPropertyData( id, &property, 0, NULL, &dataSize, &nominalRate );
+  if ( result == noErr ) {
+    // otherwise, leave field un-set ... 
+    info.currentSampleRate = (unsigned int) nominalRate;
+  }
+  
   // CoreAudio always uses 32-bit floating point data for PCM streams.
   // Thus, any other "physical" formats supported by the device are of
   // no interest to the client.
