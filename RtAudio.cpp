@@ -1154,46 +1154,11 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
     errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") getting current sample rate.";
     errorText_ = errorStream_.str();
     return FAILURE;
-  }
-
-  // Only change the sample rate if off by more than 1 Hz.
-  if ( fabs( nominalRate - (double)sampleRate ) > 1.0 ) {
-
-    // Set a property listener for the sample rate change
-    Float64 reportedRate = 0.0;
-    AudioObjectPropertyAddress tmp = { kAudioDevicePropertyNominalSampleRate, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
-    result = AudioObjectAddPropertyListener( id, &tmp, rateListener, (void *) &reportedRate );
-    if ( result != noErr ) {
-      errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") setting sample rate property listener for device (" << device << ").";
-      errorText_ = errorStream_.str();
-      return FAILURE;
-    }
-
-    nominalRate = (Float64) sampleRate;
-    result = AudioObjectSetPropertyData( id, &property, 0, NULL, dataSize, &nominalRate );
-    if ( result != noErr ) {
-      AudioObjectRemovePropertyListener( id, &tmp, rateListener, (void *) &reportedRate );
-      errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") setting sample rate for device (" << device << ").";
-      errorText_ = errorStream_.str();
-      return FAILURE;
-    }
-
-    // Now wait until the reported nominal rate is what we just set.
-    UInt32 microCounter = 0;
-    while ( reportedRate != nominalRate ) {
-      microCounter += 5000;
-      if ( microCounter > 5000000 ) break;
-      usleep( 5000 );
-    }
-
-    // Remove the property listener.
-    AudioObjectRemovePropertyListener( id, &tmp, rateListener, (void *) &reportedRate );
-
-    if ( microCounter > 5000000 ) {
-      errorStream_ << "RtApiCore::probeDeviceOpen: timeout waiting for sample rate update for device (" << device << ").";
-      errorText_ = errorStream_.str();
-      return FAILURE;
-    }
+  } else if ( fabs( nominalRate - (double)sampleRate ) > 1.0 ) {
+    // Fail if current sample rate is not correct.
+    errorStream_ << "RtApiCore::probeDeviceOpen: cannot start stream with desired sample rate " << sampleRate << " (currently " << nominalRate <<")";
+    errorText_ = errorStream_.str();
+    return FAILURE;
   }
 
   // Now set the stream format for all streams.  Also, check the
